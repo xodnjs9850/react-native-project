@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">SampleApp</string>
+
+    <!-- Notification -->
+    <string name="notification_parking_title">스마트 주차 위치</string>
+    <string name="notification_parking_name">주차위치 인식 시스템</string>
+    <string name="notification_parking_text">스마트 주차위치 앱이 실행중입니다.</string>
+    <string name="notification_parking_description">스마트 주차위치 앱이 실행중입니다.\n이 메시지는 앱을 항상 실행하도록 합니다.\n이 메시지가 보이지 않으면 앱을 다시 실행해 주세요!</string>
+    <string name="notification_parking_action">주차위치 인식</string>
+    <string name="notification_onepass_title">공동현관 자동 문열림</string>
+    <string name="notification_onepass_name">공동현관 자동 문열림</string>
+    <string name="notification_onepass_text">공동현관 자동 문열림 앱이 실행중입니다.</string>
+    <string name="notification_onepass_description">공동현관 자동 문열림 앱이 실행중입니다.\n이 메시지는 앱을 항상 실행하도록 합니다.\n이 메시지가 보이지 않으면 앱을 다시 실행해 주세요!</string>
+    <string name="notification_both_title">공동현관 자동 문열림/주차 위치</string>
+    <string name="notification_both_name">공동현관 자동 문열림/주차위치 인식</string>
+    <string name="notification_both_text">공동현관 자동 문열림/주차위치 인식</string>
+    <string name="notification_both_description">공동현관 자동 문열림/주차위치 앱이 실행중입니다.\n이 메시지는 앱을 항상 실행하도록 합니다.\n이 메시지가 보이지 않으면 앱을 다시 실행해 주세요!</string>
+    <string name="notification_both_action">주차위치 확인</string>
+
+    <string name="notification_onepass_success">%1$s의 공동현관 자동 문열림을 요청하였습니다.</string>
+    <string name="notification_onepass_fail">%1$s의 공동현관 자동 문열림 오류입니다(%2$s).</string>
+    <string name="notification_onepass_ticker">공동현관 자동 문열림</string>
+
+    <string name="notification_parking_success">주차위치 인식을 완료하였습니다.</string>
+    <string name="notification_parking_fail">주차위치 인식 오류입니다(%1$s).</string>
+
+</resources>
