@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SampleApp</string>
+    <string name="app_name">SmartParking</string>
 
     <!-- Notification -->
     <string name="notification_parking_title">스마트 주차 위치</string>

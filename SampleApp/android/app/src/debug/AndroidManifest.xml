@@ -11,12 +11,12 @@
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
     <service
-        android:name="com.sampleapp.services.SensorService.SensorService"
+        android:name="net.woorisys.pms.app.services.SensorService.SensorService"
         android:enabled="true"
         android:exported="true"
         tools:ignore="InnerclassSeparator" />
     <service
-        android:name="com.sampleapp.services.BeaconService.BeaconService"
+        android:name="net.woorisys.pms.app.services.BeaconService.BeaconService"
         android:enabled="true"
         android:exported="true"
         android:foregroundServiceType="location"

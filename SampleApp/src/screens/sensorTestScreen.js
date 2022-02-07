@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import {observer} from 'mobx-react';
 import {NavigationScreenProp, NavigationState} from 'react-navigation';
+import AsyncStorage from '@react-native-community/async-storage';
+
+import { startBeaconService } from '@service/SmartBeaconFunctionService';
 import {
     View, 
     Text, 
@@ -10,10 +13,9 @@ import {
     Easing,
     NativeModules,
     ImageBackground,
-    StyleSheet,
+    BackHandler,
     } from 'react-native';
 import styles from '@utils/styles';
-import { TextInput } from 'react-native-gesture-handler';
 
 export interface Props {
     navigation: NavigationScreenProp<NavigationState>,
@@ -22,6 +24,7 @@ export interface Props {
 interface State {
     stopAnimation: boolean,
     rotateAnimation: any,
+    cancelState: Boolean,
 
     isStartedSensor: boolean,
     successCheckSensorTest: boolean,
@@ -34,14 +37,14 @@ interface State {
 let SensorVerify = NativeModules.SensorVerify;
 
 const SENSOR_TEST_INTERVAL = 5000;
-const ANIMATION_INTERVAL = 3000;
+const ANIMATION_INTERVAL = 1500;
 const RESULT_SENSOR_VERIFY_KEY = 'resultSensorVerify';
 
 export default observer(class sensorTestScreen extends Component<Props, State> {
     static navigationOptions = {headerShown: false};
 
     sensorTestInterval: any = null;
-
+    
     constructor(props: Props) {
         super(props);
 
@@ -53,8 +56,8 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
             successCheckSensorTest: false,
             checkStage: '',
             checkPrompt: '주차위치 인식을 위한\n스마트폰의 센서를 테스트합니다.',
-
             progressTime: -1,
+            cancelState: false,
         };
 
     }
@@ -82,6 +85,9 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
     }
 
     async componentWillUnmount() {
+
+        this.clearSensorTestInterval(true);
+
         if (this.state.isStartedSensor) {
             try {
                 let {result} = await SensorVerify.EndSensorVerify();
@@ -93,12 +99,14 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
     }
 
     _startRotateAnimation = (angle, duration) => {
+        
         Animated.timing(this.rotateAnimation, {
             toValue: angle,
             duration: duration,
             easing: Easing.linear,
             useNativeDriver: false
         }).start();
+
         this.setState({
             progressTime: 5,
         }, () => {
@@ -112,6 +120,7 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
                 }
             }, 1000);
         });
+        
     };
 
     _stopRotateAnimation = () => {
@@ -129,6 +138,10 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
         }
         if (!isSuccess) {
             this._stopRotateAnimation();
+
+            if(this.state.cancelState) {
+                return
+            }
             this.setState({
                 checkStage: 'fail',
                 checkPrompt: '센서 테스트에 실패하였습니다.\n처음부터 다시 테스트 부탁드립니다.',
@@ -145,13 +158,11 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
             checkStage: 'right',
             checkPrompt: '스마트폰을 오른쪽으로\n기울여 멈춰 주세요.',
         }, async () => {
-            //console.log("1111111111111111111");
             this._startRotateAnimation(0.25, ANIMATION_INTERVAL);
-            //console.log("222222222222222222");
             try {
-                //console.log("33333333333333333333");
                 let {state, result} = await SensorVerify.RightSensorVerify();
                 console.log('Sensor test RIGHT: ', state, result);
+
                 if (state === 'Right' && result === true) {
                     this._stopRotateAnimation();
                     this.clearSensorTestInterval(true);
@@ -216,8 +227,25 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
     };
 
     successSensorTest = async () => {
-        console.log("success!!\n");
+        AsyncStorage.setItem('sensorTestResult', JSON.stringify(
+            this.state.successCheckSensorTest
+        ));
     };
+
+    onPress = () => {
+
+        this.setState({cancelState: true});
+
+        if(this.state.successCheckSensorTest) {
+            //this.props.navigation.navigate('homeScreen') 
+            startBeaconService(true, true);
+            BackHandler.exitApp();
+        } else {
+            //this.props.navigation.replace('SensorStartScreen', {})
+            //this.props.navigation.pop();
+            this.props.navigation.navigate('SensorStartScreen', {})
+        }
+    }
 
     render() {
         const interpolateRotation = this.rotateAnimation.interpolate({
@@ -239,7 +267,7 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
                                          source={require('@assets/images/phone_stay.png')}
                                          resizeMode={'contain'}>
                             {this.state.successCheckSensorTest &&
-                            <View style={SensorVerifyStyles.successCheckBox}>
+                            <View style={styles.successCheckBox}>
                                 <Image style={styles.imageSize42}
                                        source={require('@assets/images/phone_complit.png')}
                                        resizeMode={'contain'}/>
@@ -247,32 +275,30 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
                             }
                         </ImageBackground>
                     </Animated.View>
+                    
                     {this.state.checkStage === '' ?
                         <View>
-                            <Text style={[SensorVerifyStyles.sensorPrompt, {fontSize: 14, lineHeight: 24}]}>
-                                {'주차위치 인식을 위한 스마트폰의 센서를 테스트합니다.\n반드시 스마트폰의 제어센터에서 화면 회전 방향을\n'}
-                                <Text style={{fontSize: 16, color: '#fb836f'}}>
-                                    {' 세로 화면 방향 고정: 켬 '}
-                                </Text>
-                                {'으로 하시고 테스트를 시작하세요.'}
+                            <Text style={[styles.sensorPrompt, {fontSize: 14, lineHeight: 24}]}>
+                                {'주차위치 인식을 위한 스마트폰의 센서를 테스트합니다.'}
                             </Text>
                         </View>
                         :
-                        <Text style={[SensorVerifyStyles.sensorPrompt, {fontSize: 16, lineHeight: 24}]}>
+                        <Text style={[styles.sensorPrompt, {fontSize: 16, lineHeight: 24}]}>
                             {this.state.checkPrompt}
                         </Text>
                     }
+
                     {!this.state.successCheckSensorTest &&
-                    <Text style={SensorVerifyStyles.sensorWarning}>
+                    <Text style ={[styles.sensorPrompt, {fontSize: 14, lineHeight: 24}]}>
                         {this.state.checkStage !== 'fail' ?
                             '스마트폰을 눈 앞에 90도 각도로 세워주세요.'
                             :
-                            '센서테스트가 실패할 경우 화면 자동회전 기능을 OFF 한 후\n다시 시도해주세요.'}
+                            '센서테스트가 실패할 경우 화면 자동회전 기능을\n OFF 한 후 다시 시도해주세요.'}
                     </Text>
                     }
                     {this.state.progressTime > -1 &&
-                    <View style={SensorVerifyStyles.progressTimeView}>
-                        <Text style={SensorVerifyStyles.progressTimeText}>
+                    <View style={styles.progressTimeView}>
+                        <Text style={styles.progressTimeText}>
                             {this.state.progressTime}
                         </Text>
                     </View>
@@ -282,9 +308,7 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
                 <View style={[styles.saveBox, {marginBottom: 15}]}>
                     <TouchableOpacity
                         style={[styles.button3]}
-                        onPress={async () => {
-                            this.props.navigation.pop();
-                        }}>
+                        onPress={this.onPress}>
                         <View
                             style={ {backgroundColor: this.state.successCheckSensorTest ? '#0f2027' : '#0f2027'}}/>
                         <Text style={[styles.saveTextWhite]}>
@@ -298,7 +322,6 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
                         onPress={async () => {
                             this._checkSensorVerifyRight();
                         }}>
-                        {/* <View style={[styles.saveHighlight, {backgroundColor: '#0f2027'}]}/> */}
                         <Text style={[styles.saveTextWhite]}>
                             {this.state.checkStage === '' ? '시작' : '재시도'}
                         </Text>
@@ -309,49 +332,4 @@ export default observer(class sensorTestScreen extends Component<Props, State> {
         );
     }
 });
-
-export const SensorVerifyStyles = StyleSheet.create({
-    
-    sensorPrompt: {
-        marginTop: 48,
-        marginHorizontal: 24,
-        fontFamily: 'NanumSquareB',
-        textAlign: 'center',
-        fontSize: 20,
-        lineHeight: 28,
-        letterSpacing: -0.5,
-        color: '#424852',
-    },
-    sensorWarning: {
-        marginTop: 24,
-        textAlign: 'center',
-        fontSize: 12,
-        lineHeight: 14,
-        letterSpacing: -0.5,
-        color: '#424852',
-    },
-    successCheckBox: {
-        position: 'absolute',
-        top: -28,
-        right: -28,
-        width: 68,
-        height: 68,
-        borderRadius: 34,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#718cc7',
-    },
-    progressTimeView: {
-        marginTop: 24,
-    },
-    progressTimeText: {
-        fontFamily: 'NanumSquareB',
-        textAlign: 'center',
-        fontSize: 42,
-        lineHeight: 45,
-        letterSpacing: -0.5,
-        color: '#424852',
-    },
-});
-
 

@@ -148,7 +148,9 @@ const styles = StyleSheet.create({
       width: 250,
       backgroundColor: "rgba(251,247,247,0.25)",
       borderRadius: 5,
-      flexDirection: "row"
+      flexDirection: "row",
+      alignSelf: "center"
+      //marginLeft: 7,
     },
     icon22: {
       color: "rgba(0,0,0,1)",
@@ -160,7 +162,7 @@ const styles = StyleSheet.create({
       height: 50,
       width: 250,
       color: "rgba(0,0,0,1)",
-      marginLeft: 8,
+      //marginLeft: 8,
     },
     password: {
       height: 50,
@@ -168,7 +170,10 @@ const styles = StyleSheet.create({
       backgroundColor: "rgba(253,251,251,0.25)",
       borderRadius: 5,
       flexDirection: "row",
-      marginTop: 27
+      marginTop: 27,
+      alignSelf: "center"
+      //marginLeft: 7,
+      
     },
     icon2: {
       color: "rgba(0,0,0,1)",
@@ -180,12 +185,19 @@ const styles = StyleSheet.create({
       height: 50,
       width: 250,
       color: "rgba(0,0,0,1)",
-      marginLeft: 8,
+      //marginLeft: 8,
     },
-    usernameColumn: {},
+    usernameColumn: {
+      flex: 1,
+      textAlign: "center",
+      justifyContent: "center"
+    },
+
     usernameColumnFiller: {
-      flex: 1
+      flex: 1,
+      marginTop: 45,
     },
+
     button: {
       height: 59,
       backgroundColor: "rgba(31,178,204,1)",
@@ -234,7 +246,7 @@ const styles = StyleSheet.create({
     sensorTestImage: {
       marginLeft: "auto",
       marginRight: "auto",
-      marginTop: 150,
+      marginTop: 100,
     },
     sensorText: {
       color: "rgba(255,255,255,1)",
@@ -272,7 +284,80 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 8,
     marginLeft: 15,
-  }
+  },
+
+  spinnerTextStyle: {
+    color: '#FFFFFF'
+  },
+
+  sensorPrompt: {
+    marginHorizontal: 24,
+    textAlign: 'center',
+    fontSize: 20,
+    lineHeight: 28,
+    letterSpacing: -0.5,
+    color: '#424852',
+    marginTop: 30
+  },
+
+  sensorPrompt2: {
+    marginHorizontal: 24,
+    textAlign: 'center',
+    fontSize: 20,
+    lineHeight: 28,
+    letterSpacing: -0.5,
+    color: '#424852',
+    marginBottom: 30
+  },
+
+  sensorWarning: {
+    marginTop: 34,
+    textAlign: 'center',
+    fontSize: 15,
+    letterSpacing: -0.5,
+    color: '#424852',
+  },
+
+  successCheckBox: {
+    position: 'absolute',
+    top: -28,
+    right: -28,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#718cc7',
+  },
+
+  progressTimeView: {
+    marginTop: 24,
+  },
+
+  progressTimeText: {
+      textAlign: 'center',
+      fontSize: 42,
+      lineHeight: 45,
+      letterSpacing: -0.5,
+      color: '#424852',
+  },
+
+  checkBoxContainer: {
+    flexDirection: 'row',
+    marginTop: 25,
+  },
+
+  checkBoxText: {
+    color: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 6
+  },
+
+  loadingAnimation: {
+    marginTop: 20,
+  },
+
 
 });
 
